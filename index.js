@@ -1,9 +1,11 @@
+// variables for npm packages
 const fs = require("fs");
-
 const util = require("util");
 const axios = require("axios");
 const inquirer = require("inquirer");
+const pdf = require("html-pdf")
 
+// array of objects
 const colors = {
     green: {
       wrapperBackground: "#E6E1C3",
@@ -60,48 +62,67 @@ const appendFileAsync = util.promisify(fs.appendFile);
 
 function promptUser() {
     return inquirer.prompt([{
-                message: "Enter you GitHub username",
-                name: "username"
+        message: "Enter you GitHub username",
+        name: "username"
             },
-            {
-                type: "list",
-                name: "color",
-                message: "What is your favorite color?",
-                choices: ["pink","red","blue","green"]
-            }
-        ])
-        .then(function ({
-            username,
-            color
-        }) {
-            const queryUrl = `https://api.github.com/users/${username}`;
-            console.log(username);
-            console.log(color);
-            userFavColor = color;
+        {
+          type: "list",
+          name: "color",
+          message: "What is your favorite color?",
+          choices: ["pink","red","blue","green"]
+        }
+    ])
+      .then(function ({
+        username,
+        color
+      }) {
+        const queryUrl = `https://api.github.com/users/${username}`;
+        // console.log(username);
+        // console.log(color);
+        userFavColor = color;
+
+        const queryUrl2 = `https://api.github.com/users/${username}/starred`
 
 
 
- axios.get(queryUrl).then(function (result) {
-                profileimage = result.data.avatar_url;
-                userName = result.data.login;
-                userLocation = result.data.location;
-                userGithubProfile = result.data.html_url;
-                userBlog = result.data.blog;
-                userBio = result.data.bio;
-                numRepo = result.data.public_repos
-                numFollowers = result.data.followers;
-                // numGithubStars = 
-                numUsersfollowing = result.data.following;
-                userCompany = result.data.company;
-                console.log(result)
+      axios.get(queryUrl).then(function (result) {
+          profileimage = result.data.avatar_url;
+          userName = result.data.login;
+          userLocation = result.data.location;
+          userGithubProfile = result.data.html_url;
+          userBlog = result.data.blog;
+          userBio = result.data.bio;
+          numRepo = result.data.public_repos;
+          numFollowers = result.data.followers;
+          // numGithubStars = 
+          numUsersfollowing = result.data.following;
+          userCompany = result.data.company;
 
-                const html2 = generateHTML2();
-                return appendFileAsync("index.html", html2);
+          console.log(result)
+
+        const html2 = generateHTML2();
+          return appendFileAsync("index.html", html2);
                 
-            });
         });
 
+        // axios.get(queryUrl2).then(function (result2) {
+        //  const objStarred = result2
+        //   const totalSum =
+        //     // console.log(result2)
+        // });
+
+      let html = fs.readFileSync("index.html", "utf8");
+      let options = { format: "A4"};
+
+
+      pdf.create(html, options).toFile('./developerprofilegenerator.pdf', function(err, res) {
+        if (err) return console.log(err);
+        console.log(res); // { filename: '/app/businesscard.pdf' }
+      });
+
+      });
 }
+
 function generateHTML(data) {
     return `<!DOCTYPE html>
   <html lang="en">
@@ -263,12 +284,15 @@ function generateHTML(data) {
                   <h5>Currently @ ${userCompany}</h5>
                   <div class="links-nav">
                     <div class="nav-link">
-                      ${userLocation}
+                    <i class="fas fa-location-arrow"></i>
+                    <a href="https://www.google.com/maps/place/${userLocation}">${userLocation}</a>
                     </div>
                     <div class="nav-link">
+                    <i class="fab fa-github-alt"></i>
                       <a href="${userGithubProfile}">GitHub</a>
                     </div>
                     <div class="nav-link">
+                    <i class="fas fa-blog"></i>
                       <a href="${userBlog}">Blog</a>
                     </div>
                   </div>
@@ -314,16 +338,13 @@ promptUser()
 
     return writeFileAsync("index.html", html);
   })
-  // .then(function() {
-  //   const html2 = generateHTML2();
-  //   return appendFileAsync("index.html", html2);
-  //   console.log("Successfully wrote to index.html");
-  // })
-  // .catch(function(err) {
-  //   console.log(err);
-  // });
+ .catch(function (err) {
+   console.log(err);
+ })
 
 
+
+ 
 // const questions = [
 
 // ];
