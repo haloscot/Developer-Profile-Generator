@@ -36,23 +36,24 @@ let profileimage;
 // variable user name
 let userName;
 // variable link to user location
-let userLocation
+let userLocation;
 // variable link to github profile
-let userGithubProfile
+let userGithubProfile;
 // variable link to user blog
-let userBlog
+let userBlog;
 // variable user bio
-let userBio
+let userBio;
 // variable # of public repositories
-let numRepo
+let numRepo;
 // variable # of followers
-let numFollowers
+let numFollowers;
 // variable # of GitHub stars
-let numGithubStars
+let numGithubStars;
 // variable # of user followings
-let numUsersfollowing
+let numUsersfollowing;
+let userCompany;
 // store user's favorite color
-let userFavColor
+let userFavColor;
 
 const writeFileAsync = util.promisify(fs.writeFile);
 const appendFileAsync = util.promisify(fs.appendFile);
@@ -83,15 +84,20 @@ function promptUser() {
  axios.get(queryUrl).then(function (result) {
                 profileimage = result.data.avatar_url;
                 userName = result.data.login;
-                // userLocation = 
-                userGithubProfile = result.data.userLocation;
+                userLocation = result.data.location;
+                userGithubProfile = result.data.html_url;
                 userBlog = result.data.blog;
                 userBio = result.data.bio;
                 numRepo = result.data.public_repos
                 numFollowers = result.data.followers;
                 // numGithubStars = 
                 numUsersfollowing = result.data.following;
-                generateHTML2()
+                userCompany = result.data.company;
+                console.log(result)
+
+                const html2 = generateHTML2();
+                return appendFileAsync("index.html", html2);
+                
             });
         });
 
@@ -254,10 +260,10 @@ function generateHTML(data) {
                   <img src="${profileimage} alt="image">
                   <h1>Hi!</h1>
                   <h2>My name is ${username}</h2>
-                  <h5>Currently @ University of Richmond Coding Bootcamp</h5>
+                  <h5>Currently @ ${userCompany}</h5>
                   <div class="links-nav">
                     <div class="nav-link">
-                      <a href="">Location</a>
+                      ${userLocation}
                     </div>
                     <div class="nav-link">
                       <a href="${userGithubProfile}">GitHub</a>
@@ -272,7 +278,7 @@ function generateHTML(data) {
                 <div class="container">
                   <div class="row">
                     <div class="col">
-                      <h1>TEST</h1>
+                      <h1>Bio: ${userBio}</h1>
                     </div>
                   </div>
                   <div class="row">
