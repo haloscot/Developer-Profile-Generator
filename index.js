@@ -130,7 +130,7 @@ function generateHTML(data) {
            -webkit-print-color-adjust: exact !important;
            font-family: 'Cabin', sans-serif;
            }
-           main {
+           .main {
            background-color: #E9EDEE;
            height: auto;
            padding-top: 30px;
@@ -244,24 +244,25 @@ function generateHTML(data) {
           }
 
           function generateHTML2(data){
-            return `</head>
+            return `
+            </head>
             <body>
             <div class="wrapper">
               <div class="container">
                 <div class="photo-header">
-                  <img src="" alt="">
+                  <img src="${profileimage} alt="image">
                   <h1>Hi!</h1>
-                  <h2>My name is SK</h2>
-                  <h5>Currently @ UW Coding Bootcamp</h5>
+                  <h2>My name is ${username}</h2>
+                  <h5>Currently @ University of Richmond Coding Bootcamp</h5>
                   <div class="links-nav">
                     <div class="nav-link">
                       <a href="">Location</a>
                     </div>
                     <div class="nav-link">
-                      <a href="">GitHub</a>
+                      <a href="${userGithubProfile}">GitHub</a>
                     </div>
                     <div class="nav-link">
-                      <a href="">Blog</a>
+                      <a href="${userBlog}">Blog</a>
                     </div>
                   </div>
                 </div>
@@ -276,29 +277,25 @@ function generateHTML(data) {
                   <div class="row">
                     <div class="card col">
                       <h2>Public Repositories</h2>
-                      <!--arbitrary value-->
-                      <h3>100</h3>
+                      <h3>${numRepo}</h3>
                     </div>
                     <div class="card col">
                       <h2>Followers</h2>
-                      <!--arbitrary value-->
-                      <h3>100</h3>
+                      <h3>${numFollowers}</h3>
                     </div>
                   </div>
                   <div class="row">
                     <div class="card col">
                       <h2>GitHub Stars</h2>
-                      <!--arbitrary value-->
-                      <h3>100</h3>
+                      <h3>TBD</h3>
                     </div>
                     <div class="card col">
                       <h2>Following</h2>
-                      <!--arbitrary value-->
-                      <h3>100</h3>
+                      <h3>${numUsersfollowing}</h3>
                     </div>
                   </div>
                 </div>
-              </div>
+              </div>${numFollowers}
             </div>
           </body>
           </html>`  
