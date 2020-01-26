@@ -63,9 +63,10 @@ function promptUser() {
                 name: "username"
             },
             {
-                type: "input",
+                type: "list",
                 name: "color",
-                message: "What is your favorite color?"
+                message: "What is your favorite color?",
+                choices: ["pink","red","blue","green"]
             }
         ])
         .then(function ({
@@ -90,7 +91,7 @@ function promptUser() {
                 numFollowers = result.data.followers;
                 // numGithubStars = 
                 numUsersfollowing = result.data.following;
-                console.log(result.data);
+                generateHTML2()
             });
         });
 
@@ -302,19 +303,19 @@ function generateHTML(data) {
         }
 
 promptUser()
-  .then(function() {
-    const html = generateHTML();
+  .then(function(answers) {
+    const html = generateHTML(answers);
 
     return writeFileAsync("index.html", html);
   })
-  .then(function() {
-    const html2 = generateHTML2();
-    return appendFileAsync("index.html", html2);
-    console.log("Successfully wrote to index.html");
-  })
-  .catch(function(err) {
-    console.log(err);
-  });
+  // .then(function() {
+  //   const html2 = generateHTML2();
+  //   return appendFileAsync("index.html", html2);
+  //   console.log("Successfully wrote to index.html");
+  // })
+  // .catch(function(err) {
+  //   console.log(err);
+  // });
 
 
 // const questions = [
