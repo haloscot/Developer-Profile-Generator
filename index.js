@@ -3,7 +3,8 @@ const fs = require("fs");
 const util = require("util");
 const axios = require("axios");
 const inquirer = require("inquirer");
-const pdf = require("html-pdf")
+const pdf = require("html-pdf");
+const github = require("github-scraper");
 
 // array of objects
 const colors = {
@@ -53,6 +54,7 @@ let numFollowers;
 let numGithubStars;
 // variable # of user followings
 let numUsersfollowing;
+// variable for company
 let userCompany;
 // store user's favorite color
 let userFavColor;
@@ -64,26 +66,28 @@ function promptUser() {
     return inquirer.prompt([{
         message: "Enter you GitHub username",
         name: "username"
-            },
-        {
-          type: "list",
-          name: "color",
-          message: "What is your favorite color?",
-          choices: ["pink","red","blue","green"]
-        }
+      },
+      {
+        type: "list",
+        name: "color",
+        message: "What is your favorite color?",
+        choices: ["pink",
+          "red",
+          "blue",
+          "green"
+        ]
+      }
     ])
-      .then(function ({
-        username,
-        color
-      }) {
+    .then(function ({
+      username,
+      color
+    }) {
         const queryUrl = `https://api.github.com/users/${username}`;
         // console.log(username);
         // console.log(color);
         userFavColor = color;
 
         const queryUrl2 = `https://api.github.com/users/${username}/starred`
-
-
 
       axios.get(queryUrl).then(function (result) {
           profileimage = result.data.avatar_url;
@@ -94,43 +98,44 @@ function promptUser() {
           userBio = result.data.bio;
           numRepo = result.data.public_repos;
           numFollowers = result.data.followers;
-          // numGithubStars = 
           numUsersfollowing = result.data.following;
           userCompany = result.data.company;
 
-          console.log(result)
 
-        const html2 = generateHTML2();
-          return appendFileAsync("index.html", html2);
-                
-        });
-        .then(function ()){
-          // code to create pdf
-          let html = fs.readFileSync("index.html", "utf8");
-          let options = { 
-          format: "Letter"
-        };
+          // //axio call to get all the starred repos. Then count the # of repos from the object array to get total count of stars
+          // axios.get(queryUrl2).then(function (result2) {
+          //     console.log(result2)
+          // });
 
-        pdf.create(html, options).toFile('./developerprofilegenerator.pdf', function (err, res) {
-          if (err) return console.log(err);
-          console.log(res); // { filename: '' }
-        });
+          github(username, function(err, data){
+            const html = generateHTML2(data.stars);
+            return appendFileAsync("index.html", html);
+
+          });
+
+          // console.log(result)
+
       })
-        
-        // axio call to get repos and count the # of repos from the object array to get total count of stars
-        // axios.get(queryUrl2).then(function (result2) {
-        //  const objStarred = result2
-        //   const totalSum =
-        //     // console.log(result2)
-        // });
+      .then(function () {
+        // code to create pdf
+        let html = fs.readFileSync("index.html", "utf8");
+        let options = { 
+        format: "Letter"
+      };
+
+      pdf.create(html, options).toFile('./developerprofilegenerator.pdf', function (err, res) {
+        if (err) return console.log(err);
+        console.log(res); // { filename: '' }
+      });
+    })
+
+  });
 
 
-    });
-      
 }
 
 function generateHTML(data) {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
   <html lang="en">
      <head>
         <meta charset="UTF-8" />
@@ -273,68 +278,68 @@ function generateHTML(data) {
             } 
            }
         </style>`
-          }
+  }
 
-          function generateHTML2(data){
-            return `
-            </head>
-            <body>
-            <div class="wrapper">
-              <div class="container">
-                <div class="photo-header">
-                  <img src="${profileimage} alt="image">
-                  <h1>Hi!</h1>
-                  <h2>My name is ${username}</h2>
-                  <h5 class = "company">Currently @ ${userCompany}</h5>
-                  <div class="links-nav">
-                    <div class="nav-link">
-                    <i class="fas fa-location-arrow"></i>
-                    <a href="https://www.google.com/maps/place/${userLocation}">${userLocation}</a>
-                    </div>
-                    <div class="nav-link">
-                    <i class="fab fa-github-alt"></i>
-                      <a href="${userGithubProfile}">GitHub</a>
-                    </div>
-                    <div class="nav-link">
-                    <i class="fas fa-blog"></i>
-                      <a href="${userBlog}">Blog</a>
-                    </div>
-                  </div>
-                </div>
+  function generateHTML2(data){
+    return `
+      </head>
+      <body>
+      <div class="wrapper">
+        <div class="container">
+          <div class="photo-header">
+            <img src="${profileimage} alt="image">
+            <h1>Hi!</h1>
+            <h2>My name is ${userName}</h2>
+            <h5 class = "company">Currently @ ${userCompany}</h5>
+            <div class="links-nav">
+              <div class="nav-link">
+              <i class="fas fa-location-arrow"></i>
+              <a href="https://www.google.com/maps/place/${userLocation}">${userLocation}</a>
               </div>
-              <div class="main">
-                <div class="container">
-                  <div class="row">
-                    <div class="col">
-                      <h2>${userBio}</h2>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="card col">
-                      <h2>Public Repositories</h2>
-                      <h3>${numRepo}</h3>
-                    </div>
-                    <div class="card col">
-                      <h2>Followers</h2>
-                      <h3>${numFollowers}</h3>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="card col">
-                      <h2>GitHub Stars</h2>
-                      <h3>TBD</h3>
-                    </div>
-                    <div class="card col">
-                      <h2>Following</h2>
-                      <h3>${numUsersfollowing}</h3>
-                    </div>
-                  </div>
-                </div>
-              </div>${numFollowers}
+              <div class="nav-link">
+              <i class="fab fa-github-alt"></i>
+                <a href="${userGithubProfile}">GitHub</a>
+              </div>
+              <div class="nav-link">
+              <i class="fas fa-blog"></i>
+                <a href="${userBlog}">Blog</a>
+              </div>
             </div>
-          </body>
-          </html>`  
-        }
+          </div>
+        </div>
+        <div class="main">
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                <h2>${userBio}</h2>
+              </div>
+            </div>
+            <div class="row">
+              <div class="card col">
+                <h2>Public Repositories</h2>
+                <h3>${numRepo}</h3>
+              </div>
+              <div class="card col">
+                <h2>Followers</h2>
+                <h3>${numFollowers}</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="card col">
+                <h2>GitHub Stars</h2>
+                <h3>TBD</h3>
+              </div>
+              <div class="card col">
+                <h2>Following</h2>
+                <h3>${numUsersfollowing}</h3>
+              </div>
+            </div>
+          </div>
+        </div>${numFollowers}
+      </div>
+    </body>
+    </html>`  
+  }
 
 promptUser()
   .then(function(answers) {
@@ -344,5 +349,5 @@ promptUser()
   })
  .catch(function (err) {
    console.log(err);
- })
+ });
 
